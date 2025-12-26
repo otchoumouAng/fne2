@@ -144,9 +144,18 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLabel" name="price_value">
-        <property name="text">
-         <string>0.00</string>
+       <widget class="QDoubleSpinBox" name="price_value">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="minimum">
+         <double>0.00</double>
+        </property>
+        <property name="maximum">
+         <double>999999999.00</double>
         </property>
        </widget>
       </item>

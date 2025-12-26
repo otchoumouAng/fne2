@@ -120,11 +120,11 @@ class CommandeEditorDialog(QDialog):
             price = float(product.get('unit_price', 0))
             tax_rate = float(product.get('tax_rate', 0))
             # Utiliser le format :.10g
-            self.ui.price_value.setText(f"{price:.10g}")
+            self.ui.price_value.setValue(price)
             self.ui.tax_rate_value.setText(f"{tax_rate:.10g}%")
         else:
             # Utiliser un format simple pour zéro
-            self.ui.price_value.setText("0")
+            self.ui.price_value.setValue(0.0)
             self.ui.tax_rate_value.setText("0%")
 
     def _add_item_to_table(self):
@@ -134,7 +134,7 @@ class CommandeEditorDialog(QDialog):
             QMessageBox.warning(self, "Aucun produit", "Veuillez sélectionner un produit à ajouter.")
             return
 
-        price = float(product['unit_price'])
+        price = self.ui.price_value.value()
         tax_rate = float(product['tax_rate'])
         total_ht = price * quantity
         row = [

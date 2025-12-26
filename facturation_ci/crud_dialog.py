@@ -2,12 +2,13 @@ from PyQt6.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QDialogButtonBox,
 from core.theme import STYLESHEET
 
 class CrudDialog(QDialog):
-    def __init__(self, mode, fields_config, title, data=None, parent=None):
+    def __init__(self, mode, fields_config, title, data=None, parent=None, read_only=False):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setStyleSheet(STYLESHEET)
         self.fields_config = fields_config
         self.widgets = {}
+        self.read_only = read_only
 
         main_layout = QVBoxLayout(self)
         form_layout = QFormLayout()
@@ -27,12 +28,19 @@ class CrudDialog(QDialog):
             if data and field_name in data:
                 widget.setText(str(data[field_name]))
 
+            if self.read_only:
+                widget.setEnabled(False)
+
             self.widgets[field_name] = widget
             form_layout.addRow(label, widget)
 
         main_layout.addLayout(form_layout)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        if self.read_only:
+            button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+        else:
+            button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         main_layout.addWidget(button_box)
