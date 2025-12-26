@@ -1,0 +1,8 @@
+PyQt6==6.10.0
+mysql-connector-python
+requests
+reportlab
+bcrypt
+qrcode
+Pillow
+matplotlib

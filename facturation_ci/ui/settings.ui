@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsPage</class>
+ <widget class="QWidget" name="SettingsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Paramètres</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="company_groupbox">
+     <property name="title">
+      <string>Informations de l'Entreprise</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_name">
+        <property name="text">
+         <string>Nom de l'entreprise :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="name_edit"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_address">
+        <property name="text">
+         <string>Adresse :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QTextEdit" name="address_edit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_phone">
+        <property name="text">
+         <string>Téléphone :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="phone_edit"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_email">
+        <property name="text">
+         <string>Email :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="email_edit"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_tax_id">
+        <property name="text">
+         <string>N° de Contribuable :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLineEdit" name="tax_id_edit"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_pos">
+        <property name="text">
+         <string>Point de Vente :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLineEdit" name="pos_edit"/>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_fne_api_key">
+        <property name="text">
+         <string>Clé d'API FNE :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLineEdit" name="fne_api_key_edit">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_tax_regime">
+        <property name="text">
+         <string>Régime d'imposition :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QLineEdit" name="tax_regime_edit"/>
+      </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="label_tax_office">
+        <property name="text">
+         <string>Centre des impôts :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QLineEdit" name="tax_office_edit"/>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_rccm">
+        <property name="text">
+         <string>N° RCCM :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QLineEdit" name="rccm_edit"/>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="label_bank_details">
+        <property name="text">
+         <string>Références bancaires :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QLineEdit" name="bank_details_edit"/>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_establishment">
+        <property name="text">
+         <string>Établissement :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QLineEdit" name="establishment_edit"/>
+      </item>
+      </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="save_button">
+       <property name="text">
+        <string>Enregistrer les modifications</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
