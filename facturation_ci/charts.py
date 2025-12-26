@@ -6,6 +6,7 @@ from matplotlib.figure import Figure
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
 from PyQt6.QtCore import Qt
 from core.theme import BG_CARD, TEXT_MAIN, TEXT_SEC, PRIMARY, SUCCESS, DANGER, BORDER, BG_SIDEBAR
+import datetime
 
 class BaseMatplotlibChart(QWidget):
     def __init__(self, title="", parent=None):
@@ -70,11 +71,16 @@ class RevenueBarChart(BaseMatplotlibChart):
         self._setup_axes(self.ax)
 
         if not data:
-            self.canvas.draw()
-            return
-
-        months = [x[0] for x in data]
-        revenues = [x[1] for x in data]
+            # Generate last 6 months with 0 revenue
+            months = []
+            today = datetime.date.today()
+            for i in range(5, -1, -1):
+                d = today - datetime.timedelta(days=i*30)
+                months.append(d.strftime("%b"))
+            revenues = [0] * 6
+        else:
+            months = [x[0] for x in data]
+            revenues = [x[1] for x in data]
 
         # Create bars
         bars = self.ax.bar(months, revenues, color=PRIMARY, width=0.6)
@@ -107,6 +113,9 @@ class StatusPieChart(BaseMatplotlibChart):
 
         total = sum(status_counts.values())
         if total == 0:
+            # Show empty state
+            self.ax.text(0, 0, "Aucune donnée", ha='center', va='center', color=TEXT_SEC, fontsize=10)
+            self.ax.axis('off')
             self.canvas.draw()
             return
 

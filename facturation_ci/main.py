@@ -89,6 +89,9 @@ def main():
 
     main_window.show()
 
+    # Force la sélection du Dashboard au démarrage pour éviter d'afficher une autre page par erreur
+    main_window.ui.nav_menu.setCurrentRow(0)
+
     # --- Démarrage de la boucle d'événements ---
     exit_code = app.exec()
 
