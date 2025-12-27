@@ -370,11 +370,12 @@ def insert_default_company(cursor):
         "contact@monentreprise.ci",
         "CI-XXX-1234567-X",
         "Sogici",
-        "j33NYEEKXzXxSL88nXiqM8yWRSkO7hJv"
+        "j33NYEEKXzXxSL88nXiqM8yWRSkO7hJv",
+        "SOCIETE GENERALE D'INDUSTRIES EN COTE D'IVOIRE"
     )
     query = """
-        INSERT INTO company_info (name, address, phone, email, ncc, point_of_sale, fne_api_key)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO company_info (name, address, phone, email, ncc, point_of_sale, fne_api_key, establishment)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         cursor.execute(query, company_data)

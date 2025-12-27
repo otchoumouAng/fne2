@@ -24,7 +24,7 @@ class AuthDialog(QDialog):
         # Enlève la barre de titre Windows (Frameless)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         # Rend le fond de la fenêtre transparent (pour avoir les coins arrondis propres)
-        #self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         # ---------------------------------------
 
         # Connexions

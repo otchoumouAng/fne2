@@ -22,7 +22,7 @@ def create_executable():
             '--onefile',                      # Créer un seul fichier .exe (pas de dossier de dépendances)
             '--console',                      # Garder la fenêtre noire (console) pour voir les logs
             '--clean',                        # Nettoyer le cache avant la construction
-            '--icon=icone.ico',               # Fichier .ico
+            '--icon=images/icon.ico',               # Fichier .ico
         ])
         
         print("\n" + "="*50)
