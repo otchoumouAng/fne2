@@ -205,7 +205,12 @@ class AvoirListPage(QWidget):
             "details": avoir_data['lignes_avoir']
         }
         html_content = generator.render_html(**context)
-        output_file = f"Avoir-{avoir_data['code_avoir']}.pdf"
+
+        filename_suffix = ""
+        if avoir_data.get('statut_fne') == 'success':
+            filename_suffix = "-c"
+
+        output_file = f"Avoir-{avoir_data['code_avoir']}{filename_suffix}.pdf"
 
         self.is_task_running = True
         self.thread = QThread()
