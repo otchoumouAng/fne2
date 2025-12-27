@@ -307,7 +307,11 @@ class InvoiceModule(QWidget):
         }
         html_content = generator.render_html(**context)
 
-        output_file = f"facture-{invoice_data['details']['code_facture']}.pdf"
+        filename_suffix = ""
+        if invoice_data['details'].get('statut_fne') == 'success':
+            filename_suffix = "-c"
+
+        output_file = f"facture-{invoice_data['details']['code_facture']}{filename_suffix}.pdf"
 
         self.thread = QThread()
         # Note: le générateur et sa méthode generate_pdf sont passés au worker
@@ -509,7 +513,24 @@ class InvoiceModule(QWidget):
         }
         html_content = generator.render_html(**context)
 
-        output_file = f"BL-{invoice_data['details']['code_facture']}.pdf"
+        # Vérifier si le BL est certifié (statut_fne dans les détails de la facture/BL)
+        # Note: invoice_data ici contient les infos de la facture, mais pour l'impression BL
+        # on a chargé les données de la facture. Cependant, le BL a son propre statut.
+        # Le code actuel de print_bl charge invoice_data via get_by_id_for_printing.
+        # Il faudrait vérifier si c'est le statut du BL ou de la facture qui compte.
+        # Dans view_bl et certify_bl, on utilise bl_model.get_by_facture_id.
+        # Ici dans print_bl, on utilise model.get_by_id_for_printing.
+        # Supposons que l'utilisateur veut distinguer si le document imprimé contient les infos de certif.
+        # Si le BL est certifié, il a un statut_fne='success'.
+        # On doit récupérer le statut du BL.
+
+        bl_status_suffix = ""
+        # On fait une requête rapide pour voir le statut du BL associé
+        bl_data = self.bl_model.get_by_facture_id(invoice_id)
+        if bl_data and bl_data['details'].get('statut_fne') == 'success':
+             bl_status_suffix = "-c"
+
+        output_file = f"BL-{invoice_data['details']['code_facture']}{bl_status_suffix}.pdf"
 
         self.thread = QThread()
         self.worker = Worker(generator.generate_pdf, html_content, output_file)
