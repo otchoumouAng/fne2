@@ -290,9 +290,9 @@
                 <section class="f1-client-details">
                     <p><strong>Client:</strong></p>
                     <p><strong>Nom :</strong> <span class="client-name">{{ client.name }}</span></p>
-                    <p><strong>Adresse :</strong> <div>{{ client.email }}</div></p>
-                    <!-- <p><strong>Email :</strong> <div>{{ client.email }}</div></p> -->
-                    <p><strong>Téléphone :</strong> <div>{{ client.phone }}</div></p>
+                    <p><strong>Adresse :</strong> <div>{{ client.address }}</div></p>
+                    <p><strong>Email :</strong> <div>{{ client.email }}</div></p>
+                    <p><strong>Téléphone :</strong> <div>{{ client.contact }}</div></p>
                     <p><strong>NCC :</strong> {{ client.ncc }}</p>
                     <!-- NOUVEAU CHAMP CLIENT -->
                     <p><strong>Régime d'imposition :</strong> {{ client.tax_regime | default('') }}</p>

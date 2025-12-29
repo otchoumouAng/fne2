@@ -22,6 +22,7 @@ class ClientModule(QWidget):
             {'name': 'address', 'label': 'Adresse', 'type': 'QTextEdit'},
             {'name': 'email', 'label': 'Email', 'type': 'QLineEdit'},
             {'name': 'phone', 'label': 'Téléphone', 'type': 'QLineEdit'},
+            {'name': 'ncc', 'label': 'NCC (Optionnel)', 'type': 'QLineEdit'},
         ]
 
         self.connect_signals()
@@ -60,7 +61,7 @@ class ClientModule(QWidget):
 
     def set_clients_in_view(self, clients):
         model = QStandardItemModel()
-        model.setHorizontalHeaderLabels(['ID', 'Nom', 'Adresse', 'Email', 'Téléphone'])
+        model.setHorizontalHeaderLabels(['ID', 'Nom', 'Adresse', 'Email', 'Téléphone', 'NCC'])
         self.ui.table_view.setModel(model)
 
         for client in clients:
@@ -69,7 +70,8 @@ class ClientModule(QWidget):
                 QStandardItem(client['name']),
                 QStandardItem(client['address']),
                 QStandardItem(client['email']),
-                QStandardItem(client['phone'])
+                QStandardItem(client['phone']),
+                QStandardItem(client['ncc'] if client['ncc'] else "")
             ]
             for item in row:
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)

@@ -23,7 +23,7 @@ class BordereauLivraisonModel:
                     f.id as facture_id, f.code_facture, f.date_facturation,
                     cmd.id as commande_id, cmd.code_commande, cmd.date_commande,
                     c.id as client_id, c.name as client_name, c.address as client_address,
-                    c.email as client_email, c.phone as client_phone
+                    c.email as client_email, c.phone as client_phone, c.ncc as client_ncc
                 FROM bordereaux_livraison bl
                 JOIN factures f ON bl.facture_id = f.id
                 JOIN commandes cmd ON f.commande_id = cmd.id

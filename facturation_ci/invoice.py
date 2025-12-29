@@ -294,7 +294,8 @@ class InvoiceModule(QWidget):
             "name": invoice_data['details']['client_name'],
             "address": invoice_data['details']['client_address'],
             "email": invoice_data['details']['client_email'],
-            "contact": f"{invoice_data['details']['client_email']} • {invoice_data['details']['client_phone']}"
+            "contact": f"{invoice_data['details']['client_email']} • {invoice_data['details']['client_phone']}",
+            "ncc": invoice_data['details'].get('client_ncc')
         }
 
         generator = PDFGenerator(template_file="invoice.html")
@@ -499,7 +500,8 @@ class InvoiceModule(QWidget):
         client_data = {
             "name": invoice_data['details']['client_name'],
             "address": invoice_data['details']['client_address'],
-            "contact": f"{invoice_data['details']['client_email']} • {invoice_data['details']['client_phone']}"
+            "contact": f"{invoice_data['details']['client_email']} • {invoice_data['details']['client_phone']}",
+            "ncc": invoice_data['details'].get('client_ncc')
         }
 
         # Utilisation du template 'bl.html'

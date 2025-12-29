@@ -194,7 +194,8 @@ class AvoirListPage(QWidget):
             "name": avoir_data.get('client_name', 'N/A'),
             "address": avoir_data.get('client_address', 'N/A'),
             "email": avoir_data.get('client_email', 'N/A'),
-            "contact": avoir_data.get('client_contact', 'N/A')
+            "contact": avoir_data.get('client_contact', 'N/A'),
+            "ncc": avoir_data.get('ncc')
         }
 
         generator = PDFGenerator(template_file="avoir.html")

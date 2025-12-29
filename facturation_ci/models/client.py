@@ -12,7 +12,7 @@ class ClientModel:
 
         cursor = connection.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT id, name, address, email, phone FROM clients ORDER BY name")
+            cursor.execute("SELECT id, name, address, email, phone, ncc FROM clients ORDER BY name")
             clients = cursor.fetchall()
             return clients
         except Error as e:
@@ -29,7 +29,7 @@ class ClientModel:
 
         cursor = connection.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT id, name, address, email, phone FROM clients WHERE id = %s", (client_id,))
+            cursor.execute("SELECT id, name, address, email, phone, ncc FROM clients WHERE id = %s", (client_id,))
             client = cursor.fetchone()
             return client
         except Error as e:
@@ -45,12 +45,13 @@ class ClientModel:
             return False
 
         cursor = connection.cursor()
-        query = "INSERT INTO clients (name, address, email, phone) VALUES (%s, %s, %s, %s)"
+        query = "INSERT INTO clients (name, address, email, phone, ncc) VALUES (%s, %s, %s, %s, %s)"
         values = (
             client_data.get('name'),
             client_data.get('address'),
             client_data.get('email'),
-            client_data.get('phone')
+            client_data.get('phone'),
+            client_data.get('ncc')
         )
         try:
             cursor.execute(query, values)
@@ -72,7 +73,7 @@ class ClientModel:
 
         cursor = connection.cursor()
         query = """
-            UPDATE clients SET name = %s, address = %s, email = %s, phone = %s
+            UPDATE clients SET name = %s, address = %s, email = %s, phone = %s, ncc = %s
             WHERE id = %s
         """
         values = (
@@ -80,6 +81,7 @@ class ClientModel:
             client_data.get('address'),
             client_data.get('email'),
             client_data.get('phone'),
+            client_data.get('ncc'),
             client_id
         )
         try:
