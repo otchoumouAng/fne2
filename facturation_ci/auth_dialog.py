@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QDialog, QMessageBox
 from PyQt6 import QtCore
 import bcrypt
+import os
 
 from page._login import Ui_LoginDialog
 from core.theme import STYLESHEET
@@ -15,24 +16,49 @@ class AuthDialog(QDialog):
         self.ui.setupUi(self)
         self.setStyleSheet(STYLESHEET)
 
-        #self.ui.button_box.accepted.connect(self.handle_login)
-        self.ui.login_btn.clicked.connect(self.handle_login)
+        # --- CORRECTION DE L'IMAGE DE FOND (MÉTHODE CSS ABSOLUE) ---
+        # 1. On récupère le chemin absolu du fichier image
+        image_path = os.path.join(os.getcwd(), "images", "bg-login.png")
 
-
-
-         # --- AJOUTE CECI POUR LE LOOK "PRO" ---
-        # Enlève la barre de titre Windows (Frameless)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-        # Rend le fond de la fenêtre transparent (pour avoir les coins arrondis propres)
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
-        # ---------------------------------------
+        # 2. On vérifie si l'image existe
+        if os.path.exists(image_path):
+            # 3. IMPORTANT : On remplace les backslashes (\) par des slashes (/) 
+            # car Qt CSS ne comprend pas les chemins Windows avec \
+            unix_path = image_path.replace('\\', '/')
+            
+            # 4. On injecte le CSS directement avec le chemin complet
+            # J'utilise 'border-image' au lieu de 'background-image' pour que l'image 
+            # s'étire et remplisse tout le cadre (effet "cover")
+            self.ui.LeftBox.setStyleSheet(f"""
+                #LeftBox {{
+                    border-image: url("{unix_path}") 0 0 0 0 stretch stretch;
+                    border-top-left-radius: 10px;
+                    border-bottom-left-radius: 10px;
+                }}
+            """)
+            print(f"Image chargée depuis : {unix_path}") # Pour debug
+        else:
+            print(f"ERREUR : Image non trouvée à : {image_path}")
+            # Fallback : une couleur si l'image n'est pas là
+            self.ui.LeftBox.setStyleSheet("""
+                #LeftBox {
+                    background-color: #4e54c8;
+                    border-top-left-radius: 10px;
+                    border-bottom-left-radius: 10px;
+                }
+            """)
+        # ------------------------------------------------------
 
         # Connexions
         self.ui.login_btn.clicked.connect(self.handle_login)
-        # J'ai ajouté un bouton croix 'close_btn' dans le UI, connecte-le aussi :
         self.ui.close_btn.clicked.connect(self.reject)
 
-    # --- AJOUTE CECI POUR POUVOIR DÉPLACER LA FENÊTRE SANS BARRE DE TITRE ---
+        # --- FENÊTRE SANS BORDURE ---
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        # ----------------------------
+
+    # --- DÉPLACEMENT DE LA FENÊTRE ---
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
             self.dragPosition = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
@@ -42,7 +68,6 @@ class AuthDialog(QDialog):
         if event.buttons() == QtCore.Qt.MouseButton.LeftButton:
             self.move(event.globalPosition().toPoint() - self.dragPosition)
             event.accept()
-
 
     def handle_login(self):
         username = self.ui.username_input.text()
@@ -58,7 +83,6 @@ class AuthDialog(QDialog):
             self.accept()
         else:
             QMessageBox.warning(self, "Échec de la connexion", "Nom d'utilisateur ou mot de passe incorrect.")
-            # Do not close the dialog, let the user try again.
 
     def _check_credentials(self, username, password):
         """Vérifie les identifiants et récupère les permissions de l'utilisateur."""
@@ -82,9 +106,7 @@ class AuthDialog(QDialog):
             cursor.execute(query, (username,))
             user = cursor.fetchone()
             if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
-                # Remove password hash before returning user data
                 del user['password_hash']
-                # Convert permission string to a set for efficient lookups
                 if user['permissions']:
                     user['permissions'] = set(user['permissions'].split(','))
                 else:

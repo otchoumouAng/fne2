@@ -1,170 +1,147 @@
-import sys
-from PyQt6 import QtCore, QtGui, QtWidgets
+import mysql.connector
+import pandas as pd
+import os
+from mysql.connector import Error
 
-class ModernLoginDialog(QtWidgets.QDialog):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Connexion")
-        self.resize(450, 550)
-        # On supprime la barre de titre système pour un look 100% custom (optionnel)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+# Configuration de la base de données mise à jour
+db_config = {
+    'host': 'localhost',
+    'database': 's_facture_plus',
+    'user': 'root',          # Changé de admin à root
+    'password': 'Admin@1234'
+}
 
-        # --- STRUCTURE ---
-        # Layout principal
-        self.main_layout = QtWidgets.QVBoxLayout(self)
+def load_file(file_path):
+    """Charge un fichier en fonction de son extension (CSV ou Excel)."""
+    ext = os.path.splitext(file_path)[1].lower()
+    try:
+        if ext == '.xls':
+            # Lecture d'un fichier Excel .xls (nécessite pip install xlrd)
+            return pd.read_excel(file_path, engine='xlrd')
+        elif ext == '.xlsx':
+            # Lecture d'un fichier Excel .xlsx (nécessite pip install openpyxl)
+            return pd.read_excel(file_path, engine='openpyxl')
+        else:
+            # Lecture d'un fichier CSV
+            return pd.read_csv(file_path, encoding='latin-1', sep=None, engine='python')
+    except ImportError:
+        print(f"Erreur : La bibliothèque nécessaire pour lire {ext} est manquante.")
+        print(f"Veuillez installer la dépendance avec : pip install {'xlrd' if ext=='.xls' else 'openpyxl'}")
+        return None
+    except Exception as e:
+        print(f"Erreur lors de la lecture du fichier {file_path} : {e}")
+        return None
+
+def import_clients(cursor, file_path):
+    """Importe les données clients depuis le fichier spécifié."""
+    print(f"Chargement des clients depuis {file_path}...")
+    df = load_file(file_path)
+    
+    if df is None:
+        return
+
+    try:
+        insert_query = """
+        INSERT INTO clients (name, address, phone, ncc) 
+        VALUES (%s, %s, %s, %s)
+        """
         
-        # Le conteneur "Carte" (Le fond blanc arrondi)
-        self.container = QtWidgets.QFrame()
-        self.container.setObjectName("Container")
-        self.main_layout.addWidget(self.container)
+        count = 0
+        for _, row in df.iterrows():
+            name = row.get('NomComplet')
+            if pd.isna(name) or str(name).strip() == "":
+                continue
+                
+            data = (
+                str(name).strip(),
+                str(row.get('SituationGeo', '')) if pd.notna(row.get('SituationGeo')) else None,
+                str(row.get('Contact', '')) if pd.notna(row.get('Contact')) else None,
+                str(row.get('CompteContribuable', '')) if pd.notna(row.get('CompteContribuable')) else None
+            )
+            cursor.execute(insert_query, data)
+            count += 1
         
-        # Layout interne de la carte
-        self.ui_layout = QtWidgets.QVBoxLayout(self.container)
-        self.ui_layout.setContentsMargins(40, 40, 40, 40)
-        self.ui_layout.setSpacing(20)
+        print(f"-> {count} clients importés avec succès.")
+    except Exception as e:
+        print(f"Erreur lors de l'insertion des clients : {e}")
 
-        # 1. Header (Bouton fermer + Titre)
-        self.close_btn = QtWidgets.QPushButton("×")
-        self.close_btn.setObjectName("CloseButton")
-        self.close_btn.setFixedSize(30, 30)
-        self.close_btn.clicked.connect(self.reject)
+def import_products(cursor, file_path):
+    """Importe les données produits depuis le fichier spécifié."""
+    print(f"Chargement des produits depuis {file_path}...")
+    df = load_file(file_path)
+    
+    if df is None:
+        return
+
+    try:
+        insert_query = """
+        INSERT INTO products (name, description, unit_price) 
+        VALUES (%s, %s, %s)
+        """
         
-        header_layout = QtWidgets.QHBoxLayout()
-        header_layout.addStretch()
-        header_layout.addWidget(self.close_btn)
-        self.ui_layout.addLayout(header_layout)
-
-        # 2. Titre & Branding
-        self.title = QtWidgets.QLabel("Bienvenue")
-        self.title.setObjectName("Title")
-        self.title.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        
-        self.subtitle = QtWidgets.QLabel("Connectez-vous à votre espace")
-        self.subtitle.setObjectName("Subtitle")
-        self.subtitle.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        
-        self.ui_layout.addWidget(self.title)
-        self.ui_layout.addWidget(self.subtitle)
-        self.ui_layout.addSpacing(20)
-
-        # 3. Champs de saisie (Remplacement de ton QFormLayout rigide)
-        self.username_input = QtWidgets.QLineEdit()
-        self.username_input.setPlaceholderText("Nom d'utilisateur")
-        self.username_input.setObjectName("Input")
-
-        self.password_input = QtWidgets.QLineEdit()
-        self.password_input.setPlaceholderText("Mot de passe")
-        self.password_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-        self.password_input.setObjectName("Input")
-
-        self.ui_layout.addWidget(self.username_input)
-        self.ui_layout.addWidget(self.password_input)
-        self.ui_layout.addSpacing(10)
-
-        # 4. Actions (Bouton Login stylisé)
-        self.login_btn = QtWidgets.QPushButton("SE CONNECTER")
-        self.login_btn.setObjectName("PrimaryButton")
-        self.login_btn.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-        self.login_btn.clicked.connect(self.accept)
-
-        self.forgot_lbl = QtWidgets.QLabel("Mot de passe oublié ?")
-        self.forgot_lbl.setObjectName("Link")
-        self.forgot_lbl.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.forgot_lbl.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-
-        self.ui_layout.addWidget(self.login_btn)
-        self.ui_layout.addWidget(self.forgot_lbl)
-        self.ui_layout.addStretch()
-
-        # --- STYLE (La Magie UI/UX) ---
-        self.apply_styles()
-
-    def apply_styles(self):
-        self.setStyleSheet("""
-            /* Fond transparent pour l'ombre portée */
-            QDialog { background: transparent; }
+        count = 0
+        for _, row in df.iterrows():
+            name = row.get('Libelle')
+            price = row.get('PrixUnit')
             
-            /* La Carte Principale */
-            #Container {
-                background-color: #FFFFFF;
-                border-radius: 20px;
-                border: 1px solid #E0E0E0;
-            }
+            if pd.isna(name) or pd.isna(price):
+                continue
+            
+            product_name = str(name).strip()
+            data = (
+                product_name,
+                product_name,
+                float(price)
+            )
+            cursor.execute(insert_query, data)
+            count += 1
+            
+        print(f"-> {count} produits importés avec succès.")
+    except Exception as e:
+        print(f"Erreur lors de l'insertion des produits : {e}")
 
-            /* Typographie */
-            #Title {
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 28px;
-                font-weight: bold;
-                color: #333333;
-            }
-            #Subtitle {
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 14px;
-                color: #757575;
-                margin-bottom: 10px;
-            }
+def main():
+    connection = None
+    try:
+        # Connexion à la base de données
+        connection = mysql.connector.connect(**db_config)
+        
+        if connection.is_connected():
+            cursor = connection.cursor()
+            
+            print("Connexion établie. Début de l'importation...\n")
+            
+            # Chemins d'accès mis à jour selon vos instructions
+            path_clients = r"D:\Export client.xls"
+            path_produits = r"D:\Export produit.xls"
+            
+            # 1. Importation des clients
+            if os.path.exists(path_clients):
+                import_clients(cursor, path_clients)
+            else:
+                print(f"Fichier introuvable : {path_clients}")
+            
+            # 2. Importation des produits
+            if os.path.exists(path_produits):
+                import_products(cursor, path_produits)
+            else:
+                print(f"Fichier introuvable : {path_produits}")
+            
+            # Validation des transactions
+            connection.commit()
+            print("\nOpération terminée.")
 
-            /* Champs de saisie modernes */
-            #Input {
-                border: 2px solid #F0F0F0;
-                border-radius: 10px;
-                padding: 12px 15px;
-                background-color: #FAFAFA;
-                font-size: 14px;
-                selection-background-color: #6C63FF;
-            }
-            #Input:focus {
-                border: 2px solid #6C63FF; /* Couleur Accent */
-                background-color: #FFFFFF;
-            }
-
-            /* Bouton Principal (Gradient & Shadow) */
-            #PrimaryButton {
-                background-color: #6C63FF;
-                color: white;
-                border-radius: 10px;
-                padding: 12px;
-                font-size: 14px;
-                font-weight: bold;
-                border: none;
-            }
-            #PrimaryButton:hover {
-                background-color: #5a52d5;
-            }
-            #PrimaryButton:pressed {
-                background-color: #4841aa;
-            }
-
-            /* Liens et Boutons secondaires */
-            #Link {
-                color: #6C63FF;
-                font-size: 12px;
-                margin-top: 10px;
-            }
-            #Link:hover { text-decoration: underline; }
-
-            #CloseButton {
-                background: transparent;
-                color: #AAA;
-                font-size: 20px;
-                border: none;
-                font-weight: bold;
-            }
-            #CloseButton:hover { color: #FF5555; }
-        """)
-
-        # Ajout d'une ombre portée (Drop Shadow) pour la profondeur
-        shadow = QtWidgets.QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(20)
-        shadow.setXOffset(0)
-        shadow.setYOffset(5)
-        shadow.setColor(QtGui.QColor(0, 0, 0, 50))
-        self.container.setGraphicsEffect(shadow)
+    except Error as e:
+        print(f"Erreur de connexion MySQL : {e}")
+        if connection:
+            connection.rollback()
+    except Exception as e:
+        print(f"Une erreur est survenue : {e}")
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Connexion MySQL fermée.")
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = ModernLoginDialog()
-    window.show()
-    sys.exit(app.exec())
+    main()
