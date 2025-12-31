@@ -370,9 +370,9 @@ def insert_default_company(cursor):
         "contact@groupe-sogici.ci",
         "8700104V",
         "Sogici",
+        "j33NYEEKXzXxSL88nXiqM8yWRSkO7hJv",
         "RNI",
         "822 Recette des Grandes Entreprises",
-        "j33NYEEKXzXxSL88nXiqM8yWRSkO7hJv",
         "SOCIETE GENERALE D'INDUSTRIES EN COTE D'IVOIRE"
     )
     query = """
