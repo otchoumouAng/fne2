@@ -41,7 +41,7 @@ class CompanyInfoModel:
             query = """
                 UPDATE company_info SET 
                     name = %s, address = %s, phone = %s, email = %s, ncc = %s, 
-                    point_of_sale = %s, fne_api_key = %s,
+                    point_of_sale = %s, base_url = %s, fne_api_key = %s,
                     tax_regime = %s, tax_office = %s, rccm = %s, 
                     bank_details = %s, establishment = %s
                 WHERE id = %s
@@ -49,7 +49,7 @@ class CompanyInfoModel:
             values = (
                 company_data['name'], company_data['address'], company_data['phone'],
                 company_data['email'], company_data['ncc'], company_data['point_of_sale'], 
-                company_data['fne_api_key'],
+                company_data['base_url'], company_data['fne_api_key'],
                 # --- AJOUTS ---
                 company_data['tax_regime'], company_data['tax_office'], company_data['rccm'],
                 company_data['bank_details'], company_data['establishment'],
@@ -61,15 +61,15 @@ class CompanyInfoModel:
             # INSERT
             query = """
                 INSERT INTO company_info (
-                    name, address, phone, email, ncc, point_of_sale, fne_api_key,
+                    name, address, phone, email, ncc, point_of_sale, base_url, fne_api_key,
                     tax_regime, tax_office, rccm, bank_details, establishment
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             values = (
                 company_data['name'], company_data['address'], company_data['phone'],
                 company_data['email'], company_data['ncc'], company_data['point_of_sale'], 
-                company_data['fne_api_key'],
+                company_data['base_url'], company_data['fne_api_key'],
                 company_data['tax_regime'], company_data['tax_office'], company_data['rccm'],
                 company_data['bank_details'], company_data['establishment']
             )

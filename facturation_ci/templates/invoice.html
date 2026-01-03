@@ -40,9 +40,9 @@
 
         /* NOUVEAU: Conteneur pour le logo en haut */
         .f1-logo-header {
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 7px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--gray-200);
         }
         .f1-logo-header .f1-logo {
             width: 140px;
@@ -266,12 +266,11 @@
                 <!-- Bloc L3-G: Détails Entreprise (company) -->
                 <div class="f1-company-details-framed">
                     <p>RCCM : <strong>{{ company.rccm }}</strong></p>
-                    <p>Références bancaires : {{ company.bank_details }}</p>
+                    <!-- <p>Références bancaires : {{ company.bank_details }}</p> -->
                     <p>Établissement : {{ company.establishment }}</p>
                     <p>Adresse : {{ company.address }}</p>
                     <p>N° Tel : {{ company.phone }}</p>
                     <p>Mail : {{ company.email }}</p>
-                    <p>Nom du vendeur : </p> <!-- {{ invoice.name | default('') }} 'user' doit être passé au contexte -->
                     <p>Nom du PDV : {{ company.point_of_sale }}</p>
                     <p>Date et heure : {{ invoice.bl_date_creation.strftime('%d/%m/%Y %H:%M:%S') }}</p>
                     <p>Mode de paiement : {{ invoice.payment_method | default('Cash') }}</p> 
@@ -303,8 +302,7 @@
 
                 <!-- Bloc L3-D: Client info section (client) -->
                 <section class="f1-client-details">
-                    <p><strong>Client:</strong></p>
-                    <p><strong>Nom :</strong> <span class="client-name">{{ client.name }}</span></p>
+                    <p><strong>Client: <span class="client-name">{{ client.name }}</span></strong></p>
                     <p><strong>Adresse :</strong> <div>{{ client.email }}</div></p>
                     <!-- <p><strong>Email :</strong> <div>{{ client.email }}</div></p> -->
                     <p><strong>Téléphone :</strong> <div>{{ client.phone }}</div></p>
@@ -362,7 +360,7 @@
         </div>
         
         <!-- SECTION RESUME DE LA FACTURE (F1) -->
-        <section class="f1-tax-summary">
+        <!-- <section class="f1-tax-summary">
             <h3>RESUME DE LA FACTURE</h3>
             <table>
                 <thead>
@@ -374,16 +372,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- TODO: Cette partie doit aussi être dynamisée -->
                     <tr>
                         <td>TVA normal : TVA sur HT 18,00% : A</td>
-                        <td>{{ money(subtotal, "") }}</td> <!-- Exemple: A dynamiser si plusieurs taux -->
+                        <td>{{ money(subtotal, "") }}</td> 
                         <td>18%</td>
                         <td>{{ money(total_tax, "") }}</td>
                     </tr>
                 </tbody>
             </table>
-        </section>
+        </section> -->
 
         
         <div class="notes">

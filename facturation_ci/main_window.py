@@ -20,6 +20,7 @@ class MainWindow(QMainWindow):
         # Initialisation UI de base
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.showMaximized()
 
         # APPLICATION DU THEME "MIDNIGHT PROFESSIONAL"
         self.setStyleSheet(STYLESHEET)
