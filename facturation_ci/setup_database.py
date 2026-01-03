@@ -45,6 +45,7 @@ def create_tables(cursor):
         "    `email` VARCHAR(100),"
         "    `ncc` VARCHAR(100) COMMENT 'N° de contribuable',"
         "    `point_of_sale` VARCHAR(255) NULL,"
+        "    `base_url` VARCHAR(255) COMMENT 'URL de base de l''API FNE',"
         "    `fne_api_key` VARCHAR(255) COMMENT 'Clé d''API pour FNE',"
         "    `tax_regime` VARCHAR(100) COMMENT 'Régime d''imposition',"
         "    `tax_office` VARCHAR(255) COMMENT 'Centre des impôts',"
@@ -370,14 +371,15 @@ def insert_default_company(cursor):
         "contact@groupe-sogici.ci",
         "8700104V",
         "Sogici",
+        "https://api.fne.ci",
         "RNI",
         "822 Recette des Grandes Entreprises",
         "j33NYEEKXzXxSL88nXiqM8yWRSkO7hJv",
         "SOCIETE GENERALE D'INDUSTRIES EN COTE D'IVOIRE"
     )
     query = """
-        INSERT INTO company_info (name, address, phone, email, ncc, point_of_sale, fne_api_key, tax_regime, tax_office, establishment)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO company_info (name, address, phone, email, ncc, point_of_sale, base_url, fne_api_key, tax_regime, tax_office, establishment)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         cursor.execute(query, company_data)

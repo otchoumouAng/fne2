@@ -112,6 +112,7 @@ class CompanyConfigWidget(QWidget):
             self.ui.email_edit.setText(company_info.get('email', ''))
             self.ui.tax_id_edit.setText(company_info.get('ncc', ''))
             self.ui.pos_edit.setText(company_info.get('point_of_sale', ''))
+            self.ui.base_url_edit.setText(company_info.get('base_url', ''))
             self.ui.fne_api_key_edit.setText(company_info.get('fne_api_key', ''))
             self.ui.tax_regime_edit.setText(company_info.get('tax_regime', ''))
             self.ui.tax_office_edit.setText(company_info.get('tax_office', ''))
@@ -127,6 +128,7 @@ class CompanyConfigWidget(QWidget):
             'email': self.ui.email_edit.text(),
             'ncc': self.ui.tax_id_edit.text(),
             'point_of_sale': self.ui.pos_edit.text(),
+            'base_url': self.ui.base_url_edit.text(),
             'fne_api_key': self.ui.fne_api_key_edit.text(),
             'tax_regime': self.ui.tax_regime_edit.text(),
             'tax_office': self.ui.tax_office_edit.text(),
