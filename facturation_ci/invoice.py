@@ -100,8 +100,21 @@ class InvoiceModule(QWidget):
 
     def on_selection_changed(self, selected, deselected):
         is_selection = self.ui.table_view.selectionModel().hasSelection()
+
+        should_enable_print = False
+        if is_selection:
+            invoice_id = self.get_selected_invoice_id()
+            if invoice_id:
+                # Récupérer le statut depuis le modèle affiché (colonne 6)
+                selected_indexes = self.ui.table_view.selectionModel().selectedRows()
+                if selected_indexes:
+                    model = self.ui.table_view.model()
+                    statut_fne = model.item(selected_indexes[0].row(), 6).text()
+                    if statut_fne == 'success':
+                        should_enable_print = True
+
         self.ui.certify_button.setEnabled(is_selection)
-        self.ui.print_button.setEnabled(is_selection)
+        self.ui.print_button.setEnabled(should_enable_print)
         self.ui.bl_button.setEnabled(is_selection)
         self.ui.create_credit_note_button.setEnabled(is_selection)
 
@@ -280,6 +293,10 @@ class InvoiceModule(QWidget):
         invoice_data = self.model.get_by_id_for_printing(invoice_id)
         if not invoice_data:
             QMessageBox.critical(self, "Erreur", f"Impossible de charger les données de la facture {invoice_id} pour l'impression.")
+            return
+
+        if invoice_data['details']['statut_fne'] != 'success':
+            QMessageBox.warning(self, "Non certifiée", "Cette facture n'est pas encore certifiée et ne peut pas être imprimée.")
             return
 
         self.is_task_running = True
