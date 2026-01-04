@@ -3,6 +3,8 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import Qt, QDate
 
 # Remplacer les imports pour Commande
+from PyQt6.QtGui import QIcon
+import os
 from page._commande_editor import Ui_CommandeEditorDialog
 from models.client import ClientModel
 from models.product import ProductModel
@@ -57,6 +59,11 @@ class CommandeEditorDialog(QDialog):
         self.ui.quantity_spinbox.valueChanged.connect(self._update_product_details)
         self.ui.add_client_button.clicked.connect(self.create_client)
         self.ui.add_product_button.clicked.connect(self.create_product)
+
+        # Set Icons for quick create buttons
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        self.ui.add_client_button.setIcon(QIcon(os.path.join(base_path, 'images', 'icon_clients.svg')))
+        self.ui.add_product_button.setIcon(QIcon(os.path.join(base_path, 'images', 'icon_produits.svg')))
 
     def load_data(self):
         # Configuration des ComboBox pour la recherche
@@ -117,8 +124,11 @@ class CommandeEditorDialog(QDialog):
     def _set_read_only(self):
         self.setWindowTitle(f"Visualisation Commande #{self.commande_id}")
         self.ui.client_combobox.setEnabled(False)
+        self.ui.add_client_button.setEnabled(False) # Disable create client button
         self.ui.date_commande_edit.setEnabled(False)
-        self.ui.add_item_groupbox.setEnabled(False)
+        self.ui.add_item_groupbox.setEnabled(False) # This disables product combobox and add button
+        # Explicitly disable the quick create product button just in case, though it's inside the groupbox
+        self.ui.add_product_button.setEnabled(False)
         self.ui.remove_item_button.setEnabled(False)
         self.ui.button_box.clear()
         self.ui.button_box.addButton(QDialogButtonBox.StandardButton.Close)
