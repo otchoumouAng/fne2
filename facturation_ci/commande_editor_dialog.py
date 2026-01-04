@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, QDate
 
 # Remplacer les imports pour Commande
 from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
 import os
 from page._commande_editor import Ui_CommandeEditorDialog
 from models.client import ClientModel
@@ -62,8 +63,32 @@ class CommandeEditorDialog(QDialog):
 
         # Set Icons for quick create buttons
         base_path = os.path.dirname(os.path.abspath(__file__))
-        self.ui.add_client_button.setIcon(QIcon(os.path.join(base_path, 'images', 'icon_clients.svg')))
-        self.ui.add_product_button.setIcon(QIcon(os.path.join(base_path, 'images', 'icon_produits.svg')))
+
+        # Style buttons as 'secondary' (white bg, border) for better visibility of icons
+        for btn, icon_name in [
+            (self.ui.add_client_button, 'icon_clients.svg'),
+            (self.ui.add_product_button, 'icon_produits.svg')
+        ]:
+            btn.setText("") # Ensure no text is displayed (overriding retranslateUi default)
+            btn.setIcon(QIcon(os.path.join(base_path, 'images', icon_name)))
+            btn.setIconSize(QSize(20, 20))
+            btn.setProperty("class", "secondary")
+            # Force style reload
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
+            # Add specific style to center icon and ensure square aspect
+            btn.setStyleSheet("""
+                QPushButton {
+                    padding: 4px;
+                    border-radius: 4px;
+                    background-color: #ffffff;
+                    border: 1px solid #e2e8f0;
+                }
+                QPushButton:hover {
+                    background-color: #f8fafc;
+                    border-color: #94a3b8;
+                }
+            """)
 
     def load_data(self):
         # Configuration des ComboBox pour la recherche
