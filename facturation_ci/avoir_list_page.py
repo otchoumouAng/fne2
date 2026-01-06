@@ -99,6 +99,7 @@ class AvoirListPage(QWidget):
 
         company_info = self.company_model.get_first()
         api_key = company_info.get('fne_api_key')
+        base_url = company_info.get('base_url')
         if not api_key:
             QMessageBox.critical(self, "Erreur de configuration", "La clé d'API FNE pour l'entreprise n'est pas configurée.")
             return
@@ -109,7 +110,8 @@ class AvoirListPage(QWidget):
             fne_client.refund_invoice,
             api_key=api_key,
             original_fne_invoice_id=fne_invoice_id,
-            items_to_refund=items_to_refund
+            items_to_refund=items_to_refund,
+            base_url=base_url
         )
         self.worker.moveToThread(self.thread)
 

@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/">
     <file>images/bg-login.png</file>
+    <file>images/icon_clients.svg</file>
+    <file>images/icon_produits.svg</file>
   </qresource>
 </RCC>

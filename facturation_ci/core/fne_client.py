@@ -1,8 +1,8 @@
 import requests
 import json
 
-# L'URL de base de l'API FNE. À mettre dans un fichier de configuration dans une app réelle.
-FNE_API_BASE_URL = "http://54.247.95.108/ws/external"
+# L'URL de base de l'API FNE par défaut.
+DEFAULT_FNE_API_BASE_URL = "http://54.247.95.108/ws/external"
 
 class FNEClientError(Exception):
     """Exception personnalisée pour les erreurs du client FNE."""
@@ -28,7 +28,15 @@ def certify_document(invoice_full_data: dict, company_info: dict, client_info: d
     if doc_type not in ["sale", "purchase"]:
         raise FNEClientError(f"Le type de document '{doc_type}' n'est pas supporté pour la signature.")
 
-    endpoint = f"{FNE_API_BASE_URL}/invoices/sign"
+    base_url = company_info.get("base_url")
+    if not base_url:
+        base_url = DEFAULT_FNE_API_BASE_URL
+
+    # Retirer le slash final si présent pour éviter les doubles slashes
+    if base_url.endswith("/"):
+        base_url = base_url[:-1]
+
+    endpoint = f"{base_url}/invoices/sign"
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -87,6 +95,7 @@ def certify_document(invoice_full_data: dict, company_info: dict, client_info: d
 
     try:
         print("--- Payload FNE ---")
+        print("Endpoint: ", endpoint)
         print(json.dumps(payload, indent=2))
         print("---------------------")
         response = requests.post(endpoint, headers=headers, data=json.dumps(payload), timeout=20)
@@ -143,20 +152,28 @@ def certify_document(invoice_full_data: dict, company_info: dict, client_info: d
         raise FNEClientError(f"Erreur inattendue lors de la certification: {e}")
 
 
-def refund_invoice(api_key: str, original_fne_invoice_id: str, items_to_refund: list):
+def refund_invoice(api_key: str, original_fne_invoice_id: str, items_to_refund: list, base_url: str = None):
     """
     Appelle l'API FNE pour créer un avoir (refund) sur une facture existante.
 
     :param api_key: La clé d'API de l'entreprise.
     :param original_fne_invoice_id: L'ID FNE unique de la facture de vente d'origine.
     :param items_to_refund: Une liste de dictionnaires, chacun avec 'id' (FNE item id) et 'quantity'.
+    :param base_url: L'URL de base de l'API FNE.
     :return: Dictionnaire avec les données de l'avoir certifié.
     :raises FNEClientError: En cas d'échec.
     """
     # (Le reste de cette fonction 'refund_invoice' est inchangé car
     # elle ne dépend pas de company_info ou client_info)
     
-    endpoint = f"{FNE_API_BASE_URL}/invoices/{original_fne_invoice_id}/refund"
+    if not base_url:
+        base_url = DEFAULT_FNE_API_BASE_URL
+
+    # Retirer le slash final si présent pour éviter les doubles slashes
+    if base_url.endswith("/"):
+        base_url = base_url[:-1]
+
+    endpoint = f"{base_url}/invoices/{original_fne_invoice_id}/refund"
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -169,6 +186,7 @@ def refund_invoice(api_key: str, original_fne_invoice_id: str, items_to_refund: 
 
     try:
         print("--- Payload Avoir FNE ---")
+        print("Endpoint: ", endpoint)
         print(json.dumps(payload, indent=2))
         print("--------------------------")
         response = requests.post(endpoint, headers=headers, data=json.dumps(payload), timeout=20)

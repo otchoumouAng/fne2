@@ -2,7 +2,7 @@
 # Ce script doit être lancé depuis la racine du projet via PowerShell.
 
 Write-Host "==================================================" -ForegroundColor Cyan
-Write-Host "   Génération de l'exécutable FacturationCI (v2)" -ForegroundColor Cyan
+Write-Host "    Génération de l'exécutable S Facture + (v2)" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
 # 1. Vérification de l'installation de PyInstaller
@@ -31,20 +31,28 @@ $ImagesSrc = "facturation_ci/images"
 # Chemin vers les navigateurs téléchargés localement
 $BrowsersSrc = "browsers" 
 
-# Recherche de l'icône
-$IconPathCandidate1 = "facturation_ci/images/icon.ico"
-$IconPathCandidate2 = "images/icon.ico"
-$IconPath = ""
+# Chemin spécifique de l'icône demandé
+$IconPath = "images/icon.ico"
 
-if (Test-Path $IconPathCandidate1) {
-    $IconPath = $IconPathCandidate1
-} elseif (Test-Path $IconPathCandidate2) {
-    $IconPath = $IconPathCandidate2
-}
-
+# Vérification du fichier d'entrée
 if (-not (Test-Path $EntryPoint)) {
     Write-Host "[ERREUR] Le fichier d'entrée $EntryPoint est introuvable." -ForegroundColor Red
     exit 1
+}
+
+# Vérification de l'icône
+if (-not (Test-Path $IconPath)) {
+    Write-Host "[AVERTISSEMENT] L'icône spécifiée '$IconPath' est introuvable." -ForegroundColor Yellow
+    # Tentative de repli sur le dossier images interne
+    if (Test-Path "facturation_ci/images/icon.ico") {
+        $IconPath = "facturation_ci/images/icon.ico"
+        Write-Host "[INFO] Utilisation de l'icône de secours : $IconPath" -ForegroundColor Gray
+    } else {
+        $IconPath = ""
+        Write-Host "[INFO] Aucune icône ne sera utilisée pour l'exécutable." -ForegroundColor Gray
+    }
+} else {
+    Write-Host "[OK] Icône trouvée : $IconPath" -ForegroundColor Green
 }
 
 # --- VÉRIFICATION CRITIQUE POUR PLAYWRIGHT ---
@@ -68,18 +76,16 @@ $PyInstallerArgs = @(
     "--onedir",
     "--windowed",
     "--clean",
-    "--name", "FacturationCI",
-    "--add-data", "$TemplatesSrc;templates",
-    "--add-data", "$ImagesSrc;images",
-    # ICI C'EST LA CORRECTION MAJEURE :
-    # On copie le dossier 'browsers' vers l'endroit précis où l'erreur le cherchait
-    "--add-data", "$BrowsersSrc;playwright/driver/package/.local-browsers",
+    "--name", "S Facture +",
+    "--add-data", "$($TemplatesSrc + ';templates')",
+    "--add-data", "$($ImagesSrc + ';images')",
+    "--add-data", "$($BrowsersSrc + ';playwright/driver/package/.local-browsers')",
     "--hidden-import", "mysql.connector",
     "--hidden-import", "babel.numbers",
     "--collect-all", "playwright"
 )
 
-# Ajout conditionnel de l'icône
+# Ajout de l'icône si elle est définie
 if ($IconPath -ne "") {
     $PyInstallerArgs += "--icon"
     $PyInstallerArgs += $IconPath
@@ -89,16 +95,17 @@ $PyInstallerArgs += "$EntryPoint"
 
 Write-Host "Arguments: $PyInstallerArgs" -ForegroundColor Gray
 
+# Exécution de PyInstaller
 & pyinstaller $PyInstallerArgs
 
 # 5. Vérification du résultat
-if ($?) {
+if ($LASTEXITCODE -eq 0) {
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   SUCCÈS ! L'exécutable a été généré." -ForegroundColor Green
+    Write-Host "    SUCCÈS ! L'exécutable a été généré." -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
-    Write-Host "Emplacement : dist/FacturationCI/FacturationCI.exe" -ForegroundColor White
+    Write-Host "Emplacement : dist/S Facture +/S Facture +.exe" -ForegroundColor White
 } else {
     Write-Host "`n==================================================" -ForegroundColor Red
-    Write-Host "   ÉCHEC de la génération." -ForegroundColor Red
+    Write-Host "    ÉCHEC de la génération." -ForegroundColor Red
     Write-Host "==================================================" -ForegroundColor Red
 }

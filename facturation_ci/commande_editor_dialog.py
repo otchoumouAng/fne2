@@ -3,11 +3,16 @@ from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import Qt, QDate
 
 # Remplacer les imports pour Commande
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QSize
+import os
 from page._commande_editor import Ui_CommandeEditorDialog
 from models.client import ClientModel
 from models.product import ProductModel
 from models.commande import CommandeModel
 from core.theme import STYLESHEET
+from crud_dialog import CrudDialog
+from PyQt6.QtWidgets import QCompleter, QComboBox
 
 class CommandeEditorDialog(QDialog):
     def __init__(self, db_manager, commande_id=None, read_only=False, parent=None):
@@ -53,18 +58,54 @@ class CommandeEditorDialog(QDialog):
         self.ui.remove_item_button.clicked.connect(self.remove_item)
         self.ui.product_combobox.currentIndexChanged.connect(self._update_product_details)
         self.ui.quantity_spinbox.valueChanged.connect(self._update_product_details)
+        self.ui.add_client_button.clicked.connect(self.create_client)
+        self.ui.add_product_button.clicked.connect(self.create_product)
+
+        # Set Icons for quick create buttons
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+        # Style buttons as 'secondary' (white bg, border) for better visibility of icons
+        for btn, icon_name in [
+            (self.ui.add_client_button, 'icon_clients.svg'),
+            (self.ui.add_product_button, 'icon_produits.svg')
+        ]:
+            btn.setText("") # Ensure no text is displayed (overriding retranslateUi default)
+            btn.setIcon(QIcon(os.path.join(base_path, 'images', icon_name)))
+            btn.setIconSize(QSize(20, 20))
+            btn.setProperty("class", "secondary")
+            # Force style reload
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
+            # Add specific style to center icon and ensure square aspect
+            btn.setStyleSheet("""
+                QPushButton {
+                    padding: 4px;
+                    border-radius: 4px;
+                    background-color: #ffffff;
+                    border: 1px solid #e2e8f0;
+                }
+                QPushButton:hover {
+                    background-color: #f8fafc;
+                    border-color: #94a3b8;
+                }
+            """)
 
     def load_data(self):
-        # Charger les clients
-        clients = self.client_model.get_all()
-        for client in clients:
-            self.ui.client_combobox.addItem(client['name'], userData=client['id'])
+        # Configuration des ComboBox pour la recherche
+        self.ui.client_combobox.setEditable(True)
+        self.ui.client_combobox.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.ui.client_combobox.completer().setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        self.ui.client_combobox.completer().setFilterMode(Qt.MatchFlag.MatchContains)
+        self.ui.client_combobox.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
 
-        # Charger les produits
-        self.products = self.product_model.get_all()
-        self.ui.product_combobox.addItem("- Sélectionner un produit -", userData=None)
-        for product in self.products:
-            self.ui.product_combobox.addItem(product['name'], userData=product)
+        self.ui.product_combobox.setEditable(True)
+        self.ui.product_combobox.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        self.ui.product_combobox.completer().setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        self.ui.product_combobox.completer().setFilterMode(Qt.MatchFlag.MatchContains)
+        self.ui.product_combobox.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+
+        self._reload_clients()
+        self._reload_products()
 
         # Mettre la date par défaut à aujourd'hui
         self.ui.date_commande_edit.setDate(QDate.currentDate())
@@ -108,8 +149,11 @@ class CommandeEditorDialog(QDialog):
     def _set_read_only(self):
         self.setWindowTitle(f"Visualisation Commande #{self.commande_id}")
         self.ui.client_combobox.setEnabled(False)
+        self.ui.add_client_button.setEnabled(False) # Disable create client button
         self.ui.date_commande_edit.setEnabled(False)
-        self.ui.add_item_groupbox.setEnabled(False)
+        self.ui.add_item_groupbox.setEnabled(False) # This disables product combobox and add button
+        # Explicitly disable the quick create product button just in case, though it's inside the groupbox
+        self.ui.add_product_button.setEnabled(False)
         self.ui.remove_item_button.setEnabled(False)
         self.ui.button_box.clear()
         self.ui.button_box.addButton(QDialogButtonBox.StandardButton.Close)
@@ -126,6 +170,86 @@ class CommandeEditorDialog(QDialog):
             # Utiliser un format simple pour zéro
             self.ui.price_value.setValue(0.0)
             self.ui.tax_rate_value.setText("0%")
+
+    def _reload_clients(self, selected_id=None):
+        self.ui.client_combobox.clear()
+        clients = self.client_model.get_all()
+        for client in clients:
+            self.ui.client_combobox.addItem(client['name'], userData=client['id'])
+
+        if selected_id:
+            index = self.ui.client_combobox.findData(selected_id)
+            if index != -1:
+                self.ui.client_combobox.setCurrentIndex(index)
+
+    def _reload_products(self, selected_id=None):
+        self.ui.product_combobox.clear()
+        self.products = self.product_model.get_all()
+        self.ui.product_combobox.addItem("- Sélectionner un produit -", userData=None)
+        for product in self.products:
+            self.ui.product_combobox.addItem(product['name'], userData=product)
+
+        if selected_id:
+            # Note: userData for product is the dict, not just ID. We need to find by ID manually or iterate.
+            # QComboBox.findData checks equality.
+            # To simplify, we search manually
+            for i in range(self.ui.product_combobox.count()):
+                data = self.ui.product_combobox.itemData(i)
+                if data and data.get('id') == selected_id:
+                    self.ui.product_combobox.setCurrentIndex(i)
+                    break
+
+    def create_client(self):
+        fields_config = [
+            {'name': 'name', 'label': 'Nom', 'type': 'QLineEdit', 'required': True},
+            {'name': 'address', 'label': 'Adresse', 'type': 'QTextEdit'},
+            {'name': 'email', 'label': 'Email', 'type': 'QLineEdit'},
+            {'name': 'phone', 'label': 'Téléphone', 'type': 'QLineEdit'},
+            {'name': 'ncc', 'label': 'NCC (Optionnel)', 'type': 'QLineEdit'},
+        ]
+        dialog = CrudDialog(mode='new', fields_config=fields_config, title="Nouveau Client", parent=self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            new_data = dialog.get_data()
+            if not new_data.get('name'):
+                QMessageBox.warning(self, "Champ Requis", "Le nom du client est requis.")
+                return
+            if self.client_model.create(new_data):
+                # Récupérer le dernier ID inséré est idéal, mais ici on ne l'a pas directement de 'create'.
+                # On va recharger et sélectionner le client par son nom (risque de doublon, mais acceptable ici)
+                # Ou mieux, modifier ClientModel.create pour retourner l'ID.
+                # Pour l'instant, on recharge tout et on sélectionne par nom.
+                self._reload_clients()
+                index = self.ui.client_combobox.findText(new_data['name'])
+                if index != -1:
+                    self.ui.client_combobox.setCurrentIndex(index)
+            else:
+                QMessageBox.critical(self, "Erreur", "Impossible de créer le client.")
+
+    def create_product(self):
+        fields_config = [
+            {'name': 'name', 'label': 'Nom', 'type': 'QLineEdit', 'required': True},
+            {'name': 'description', 'label': 'Description', 'type': 'QTextEdit'},
+            {'name': 'unit_price', 'label': 'Prix Unitaire', 'type': 'QLineEdit'},
+            {'name': 'tax_rate', 'label': 'Taux de Taxe (%)', 'type': 'QLineEdit'},
+        ]
+        dialog = CrudDialog(mode='new', fields_config=fields_config, title="Nouveau Produit", data={'tax_rate': 18}, parent=self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            new_data = dialog.get_data()
+            if not new_data.get('name'):
+                QMessageBox.warning(self, "Champ Requis", "Le nom du produit est requis.")
+                return
+            try:
+                float(new_data.get('unit_price', 0))
+                float(new_data.get('tax_rate', 0))
+            except ValueError:
+                QMessageBox.warning(self, "Format Invalide", "Prix et Taxe doivent être des nombres.")
+                return
+
+            product_id, error = self.product_model.create(new_data)
+            if error:
+                QMessageBox.critical(self, "Erreur", f"Erreur: {error}")
+            else:
+                self._reload_products(selected_id=product_id)
 
     def _add_item_to_table(self):
         product = self.ui.product_combobox.currentData()

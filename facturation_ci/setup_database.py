@@ -156,52 +156,7 @@ def create_tables(cursor):
         "  FOREIGN KEY (`facture_origine_id`) REFERENCES `factures`(`id`)"
         ") ENGINE=InnoDB")
 
-    # --- ANCIENNE STRUCTURE (CONSERVÉE POUR L'HISTORIQUE) ---
-
-    # TABLES['invoices'] = (
-    #     "CREATE TABLE `invoices` ("
-    #     "  `id` INT AUTO_INCREMENT PRIMARY KEY,"
-    #     "  `client_id` INT NOT NULL,"
-    #     "  `user_id` INT NOT NULL,"
-    #     "  `document_type` ENUM('sale', 'refund', 'purchase') NOT NULL,"
-    #     "  `issue_date` DATE NOT NULL,"
-    #     "  `due_date` DATE,"
-    #     "  `total_amount` DECIMAL(15, 2) NOT NULL,"
-    #     "  `status` ENUM('draft', 'certified', 'paid', 'partially_paid', 'cancelled') NOT NULL DEFAULT 'draft',"
-    #     "  `fne_status` ENUM('pending', 'success', 'failed') DEFAULT 'pending',"
-    #     "  `fne_nim` VARCHAR(255) NULL,"
-    #     "  `fne_qr_code` TEXT NULL,"
-    #     "  `fne_error_message` TEXT NULL,"
-    #     "  `original_invoice_id` INT NULL,"
-    #     "  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-    #     "  FOREIGN KEY (`client_id`) REFERENCES `clients`(`id`),"
-    #     "  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),"
-    #     "  FOREIGN KEY (`original_invoice_id`) REFERENCES `invoices`(`id`)"
-    #     ") ENGINE=InnoDB")
-
-    # TABLES['invoice_items'] = (
-    #     "CREATE TABLE `invoice_items` ("
-    #     "  `id` INT AUTO_INCREMENT PRIMARY KEY,"
-    #     "  `invoice_id` INT NOT NULL,"
-    #     "  `product_id` INT NOT NULL,"
-    #     "  `description` VARCHAR(255) NOT NULL,"
-    #     "  `quantity` DECIMAL(10, 2) NOT NULL,"
-    #     "  `unit_price` DECIMAL(15, 2) NOT NULL,"
-    #     "  `tax_rate` DECIMAL(5, 2) NOT NULL,"
-    #     "  FOREIGN KEY (`invoice_id`) REFERENCES `invoices`(`id`) ON DELETE CASCADE,"
-    #     "  FOREIGN KEY (`product_id`) REFERENCES `products`(`id`)"
-    #     ") ENGINE=InnoDB")
-
-    # TABLES['payments'] = (
-    #     "CREATE TABLE `payments` ("
-    #     "  `id` INT AUTO_INCREMENT PRIMARY KEY,"
-    #     "  `invoice_id` INT NOT NULL,"
-    #     "  `payment_date` DATE NOT NULL,"
-    #     "  `amount` DECIMAL(15, 2) NOT NULL,"
-    #     "  `payment_method` VARCHAR(50),"
-    #     "  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-    #     "  FOREIGN KEY (`invoice_id`) REFERENCES `invoices`(`id`)"
-    #     ") ENGINE=InnoDB")
+    
 
     TABLES['permissions'] = (
         "CREATE TABLE `permissions` ("
@@ -360,7 +315,7 @@ def insert_default_company(cursor):
     print("\nVérification des informations de l'entreprise...")
     cursor.execute("SELECT id FROM company_info LIMIT 1")
     if cursor.fetchone():
-        print("  - Les informations de l'entreprise existent déjà.")
+        print(" -Les informations de l'entreprise existent déjà.")
         return
 
     print("  - Aucune information d'entreprise trouvée, insertion des données par défaut...")
@@ -371,11 +326,8 @@ def insert_default_company(cursor):
         "contact@groupe-sogici.ci",
         "8700104V",
         "Sogici",
-<<<<<<< HEAD
+        "http://54.247.95.108/ws/external",
         "j33NYEEKXzXxSL88nXiqM8yWRSkO7hJv",
-=======
-        "https://api.fne.ci",
->>>>>>> origin/ncc-field-addition-1076688075173491014
         "RNI",
         "822 Recette des Grandes Entreprises",
         "SOCIETE GENERALE D'INDUSTRIES EN COTE D'IVOIRE"
