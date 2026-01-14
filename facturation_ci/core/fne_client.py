@@ -29,6 +29,7 @@ def certify_document(invoice_full_data: dict, company_info: dict, client_info: d
         raise FNEClientError(f"Le type de document '{doc_type}' n'est pas supporté pour la signature.")
 
     base_url = company_info.get("base_url")
+   
     if not base_url:
         base_url = DEFAULT_FNE_API_BASE_URL
 
